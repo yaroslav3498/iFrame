@@ -62,7 +62,7 @@
 </head>
 <body>
 
-  <div class="carousel-container" id="carouselContainer">
+  <div class="carousel-container">
     <div class="carousel" id="carousel">
       <div class="carousel-item"><img src="https://raw.githubusercontent.com/yaroslav3498/iFrame/refs/heads/main/1.jpg" alt="Img1"></div>
       <div class="carousel-item"><img src="https://raw.githubusercontent.com/yaroslav3498/iFrame/refs/heads/main/2.jpg" alt="Img2"></div>
@@ -81,7 +81,6 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const carousel = document.getElementById("carousel");
-      const carouselContainer = document.getElementById("carouselContainer");
       const originalItems = Array.from(carousel.children);
       let requestId;
       let xOffset = 0;
@@ -100,7 +99,7 @@
       }
 
       function startScrolling() {
-        if (!requestId && !isPaused) {
+        if (!requestId) {
           requestId = requestAnimationFrame(step);
         }
       }
@@ -112,32 +111,23 @@
         }
       }
 
-      // **Зупинка при дотику (мобільні пристрої)**
-      carouselContainer.addEventListener("touchstart", (e) => {
+      // **Зупинка при дотику**
+      carousel.addEventListener("touchstart", (e) => {
         isPaused = true;
         stopScrolling();
-        e.preventDefault(); // Запобігає прокрутці сторінки
+        e.preventDefault(); // Запобігає небажаній прокрутці сторінки
       });
 
-      // **Продовження після відпускання (мобільні пристрої)**
-      carouselContainer.addEventListener("touchend", () => {
+      // **Продовження після відпускання**
+      carousel.addEventListener("touchend", () => {
         isPaused = false;
         startScrolling();
       });
 
-      // **Зупинка при наведенні миші (ПК)**
-      carouselContainer.addEventListener("mouseenter", () => {
-        isPaused = true;
-        stopScrolling();
-      });
+      // **Продовження при русі миші (як альтернатива для десктопів)**
+      carousel.addEventListener("mouseenter", stopScrolling);
+      carousel.addEventListener("mouseleave", startScrolling);
 
-      // **Продовження при відведенні миші (ПК)**
-      carouselContainer.addEventListener("mouseleave", () => {
-        isPaused = false;
-        startScrolling();
-      });
-
-      // **Запуск анімації**
       startScrolling();
     });
   </script>
