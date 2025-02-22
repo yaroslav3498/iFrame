@@ -13,6 +13,10 @@
       margin: 0;
       padding: 0;
       -webkit-touch-callout: none; /* Вимикає контекстне меню на iOS */
+      user-select: none; /* Заборона виділення */
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -moz-user-select: none;
     }
 
     .carousel-container {
@@ -43,11 +47,8 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      user-select: none; /* Заборона виділення */
-      -webkit-user-select: none; 
-      -ms-user-select: none; 
-      -moz-user-select: none;
       -webkit-user-drag: none; /* Заборона перетягування у Safari */
+      user-select: none;
       pointer-events: auto; /* Дозволяє обробку подій */
     }
 
@@ -109,12 +110,12 @@
         }
       }
 
-      // **Зупинка при натисканні на мобільному**
+      // **Зупинка при натисканні на мобільному (iPhone + Android)**
       carouselContainer.addEventListener("touchstart", (e) => {
         isPaused = true;
         stopScrolling();
         e.preventDefault(); // Запобігає прокрутці сторінки
-      });
+      }, { passive: false }); // Додаємо `{ passive: false }`, щоб `preventDefault()` працював на iPhone
 
       // **Продовження після відпускання**
       carouselContainer.addEventListener("touchend", () => {
