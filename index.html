@@ -147,17 +147,18 @@
       }
 
       // (Optional) Pause on hover
-      carousel.addEventListener("mouseenter", () => {
-        if (requestId) {
-          cancelAnimationFrame(requestId);
-          requestId = null;
-        }
-      });
-      carousel.addEventListener("mouseleave", () => {
-        if (!requestId) {
-          requestId = requestAnimationFrame(step);
-        }
-      });
+     carousel.addEventListener("touchstart", () => {
+    if (requestId) {
+        cancelAnimationFrame(requestId);
+        requestId = null;
+    }
+});
+
+carousel.addEventListener("touchend", () => {
+    if (!requestId) {
+        requestId = requestAnimationFrame(step);
+    }
+});
 
       // Kick off the animation
       startScrolling();
