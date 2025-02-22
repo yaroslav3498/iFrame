@@ -13,10 +13,6 @@
       margin: 0;
       padding: 0;
       -webkit-touch-callout: none; /* Вимикає контекстне меню на iOS */
-      user-select: none; /* Заборона виділення */
-      -webkit-user-select: none;
-      -ms-user-select: none;
-      -moz-user-select: none;
     }
 
     .carousel-container {
@@ -47,9 +43,12 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      user-select: none; /* Заборона виділення */
+      -webkit-user-select: none; 
+      -ms-user-select: none; 
+      -moz-user-select: none;
+      pointer-events: none; /* Вимикає всі події миші */
       -webkit-user-drag: none; /* Заборона перетягування у Safari */
-      user-select: none;
-      pointer-events: auto; /* Дозволяє обробку подій */
     }
 
     .carousel-item.active {
@@ -60,7 +59,7 @@
 </head>
 <body>
 
-  <div class="carousel-container" id="carouselContainer">
+  <div class="carousel-container">
     <div class="carousel" id="carousel">
       <div class="carousel-item"><img src="https://raw.githubusercontent.com/yaroslav3498/iFrame/refs/heads/main/1.jpg" alt="Img1"></div>
       <div class="carousel-item"><img src="https://raw.githubusercontent.com/yaroslav3498/iFrame/refs/heads/main/2.jpg" alt="Img2"></div>
@@ -79,72 +78,88 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const carousel = document.getElementById("carousel");
-      const carouselContainer = document.getElementById("carouselContainer");
       const originalItems = Array.from(carousel.children);
       let requestId;
       let xOffset = 0;
       const scrollSpeed = 1.5;
-      let isPaused = false;
+      let lastActiveItem = null;
 
-      function step() {
-        if (!isPaused) {
-          xOffset += scrollSpeed;
-          if (xOffset >= originalItems.length * originalItems[0].offsetWidth) {
-            xOffset = 0;
-          }
-          carousel.style.transform = `translateX(${-xOffset}px)`;
-          requestId = requestAnimationFrame(step);
-        }
-      }
+      // Клонування елементів для безкінечної прокрутки
+      originalItems.forEach(item => {
+        const clone = item.cloneNode(true);
+        carousel.appendChild(clone);
+      });
+
+      // Визначення загальної ширини
+      let totalWidth = originalItems.reduce((sum, item) => sum + item.offsetWidth, 0);
 
       function startScrolling() {
-        if (!isPaused && !requestId) {
-          requestId = requestAnimationFrame(step);
+        requestId = requestAnimationFrame(step);
+      }
+
+      function step() {
+        xOffset += scrollSpeed;
+        if (xOffset >= totalWidth) {
+          xOffset -= totalWidth;
+        }
+        carousel.style.transform = `translateX(${-xOffset}px)`;
+        highlightCenterItem();
+        requestId = requestAnimationFrame(step);
+      }
+
+      function highlightCenterItem() {
+        const containerCenter = carousel.parentElement.clientWidth / 2;
+        let allItems = Array.from(carousel.children);
+        let closestDistance = Infinity;
+        let closestItem = null;
+        let offsetSoFar = 0;
+
+        for (let item of allItems) {
+          const itemCenter = offsetSoFar + item.offsetWidth / 2;
+          const distance = Math.abs(containerCenter - (itemCenter - xOffset));
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestItem = item;
+          }
+          offsetSoFar += item.offsetWidth;
+        }
+
+        if (closestItem && closestItem !== lastActiveItem) {
+          allItems.forEach(item => item.classList.remove('active'));
+          closestItem.classList.add('active');
+          lastActiveItem = closestItem;
         }
       }
 
-      function stopScrolling() {
-        if (requestId) {
-          cancelAnimationFrame(requestId);
-          requestId = null;
-        }
-      }
+      // Вимикання анімації при торканні та поновлення після відпускання
+      document.querySelectorAll(".carousel-item img").forEach(img => {
+        img.addEventListener("touchstart", (e) => {
+          if (requestId) {
+            cancelAnimationFrame(requestId);
+            requestId = null;
+          }
+          e.preventDefault(); // Запобігає випадковому скролінгу
+        });
 
-      // **Зупинка при натисканні на мобільному (iPhone + Android)**
-      carouselContainer.addEventListener("touchstart", (e) => {
-        isPaused = true;
-        stopScrolling();
-        e.preventDefault(); // Запобігає прокрутці сторінки
-      }, { passive: false }); // Додаємо `{ passive: false }`, щоб `preventDefault()` працював на iPhone
-
-      // **Продовження після відпускання**
-      carouselContainer.addEventListener("touchend", () => {
-        isPaused = false;
-        startScrolling();
+        img.addEventListener("touchend", () => {
+          if (!requestId) {
+            requestId = requestAnimationFrame(step);
+          }
+        });
       });
 
-      // **Зупинка при натисканні (ПК)**
-      carouselContainer.addEventListener("mousedown", () => {
-        isPaused = true;
-        stopScrolling();
+      // Вимикає контекстне меню (ПКМ)
+      document.addEventListener("contextmenu", function (event) {
+        event.preventDefault();
       });
 
-      // **Продовження після відпускання (ПК)**
-      document.addEventListener("mouseup", () => {
-        isPaused = false;
-        startScrolling();
-      });
-
-      // **Вимикає контекстне меню (ПКМ)**
-      document.addEventListener("contextmenu", (event) => event.preventDefault());
-
-      // **Забороняє перетягування зображень**
+      // Забороняє перетягування зображень
       document.querySelectorAll(".carousel-item img").forEach(img => {
         img.setAttribute("draggable", "false"); // Вимикає HTML-перетягування
-        img.onmousedown = () => false; // Вимикає виділення при кліку
+        img.onmousedown = () => false; // Вимикає клік та утримання
       });
 
-      // **Запуск анімації**
+      // Запускаємо анімацію
       startScrolling();
     });
   </script>
