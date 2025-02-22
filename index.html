@@ -51,7 +51,6 @@
       -webkit-user-select: none; 
       -ms-user-select: none; 
       -moz-user-select: none;
-      pointer-events: none; /* Вимикає всі події миші */
       -webkit-user-drag: none; /* Заборона перетягування у Safari */
     }
 
@@ -88,21 +87,19 @@
       const scrollSpeed = 1.5;
       let lastActiveItem = null;
 
-      // Функція для заборони виділення, копіювання та перетягування елементів
       function disableSelectionAndDrag(element) {
         element.setAttribute("draggable", "false");
         element.onmousedown = () => false;
         element.addEventListener("contextmenu", (e) => e.preventDefault());
       }
 
-      // Клонування елементів для безкінечної прокрутки
+      // Клонування елементів
       originalItems.forEach(item => {
         const clone = item.cloneNode(true);
         carousel.appendChild(clone);
         disableSelectionAndDrag(clone.querySelector("img"));
       });
 
-      // Визначення загальної ширини
       let totalWidth = originalItems.reduce((sum, item) => sum + item.offsetWidth, 0);
 
       function startScrolling() {
@@ -143,32 +140,28 @@
         }
       }
 
-      // Вимикає контекстне меню (ПКМ) і забороняє перетягування
       document.addEventListener("contextmenu", (event) => event.preventDefault());
 
-      // Забороняє виділення та копіювання у всіх зображеннях, включаючи клоновані
       document.querySelectorAll(".carousel-item img").forEach(img => {
         disableSelectionAndDrag(img);
       });
 
-      // Вимикання анімації при торканні та поновлення після відпускання
-      document.querySelectorAll(".carousel-item img").forEach(img => {
-        img.addEventListener("touchstart", (e) => {
-          if (requestId) {
-            cancelAnimationFrame(requestId);
-            requestId = null;
-          }
-          e.preventDefault();
-        });
-
-        img.addEventListener("touchend", () => {
-          if (!requestId) {
-            requestId = requestAnimationFrame(step);
-          }
-        });
+      // **Оновлено:** Зупинка при торканні і поновлення після відпускання
+      carousel.addEventListener("touchstart", (e) => {
+        if (requestId) {
+          cancelAnimationFrame(requestId);
+          requestId = null;
+        }
+        e.stopPropagation(); // Запобігає спрацьовуванню інших подій
       });
 
-      // Запускаємо анімацію
+      carousel.addEventListener("touchend", () => {
+        if (!requestId) {
+          requestId = requestAnimationFrame(step);
+        }
+      });
+
+      // Запуск анімації
       startScrolling();
     });
   </script>
