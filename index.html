@@ -12,13 +12,16 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      -webkit-touch-callout: none; /* Вимикає контекстне меню на iOS */
     }
+
     .carousel-container {
       position: relative;
       width: 100%;
       overflow: hidden;
       padding: 100px 0;
     }
+
     .carousel {
       display: flex;
       gap: 0px;
@@ -27,6 +30,7 @@
       will-change: transform;
       transition: none;
     }
+
     .carousel-item {
       width: 135px;
       height: 197px;
@@ -34,26 +38,23 @@
       display: inline-block;
       transition: transform 0.4s ease, opacity 0.4s ease;
     }
+
     .carousel-item img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      user-select: none; /* Prevent selection */
-      pointer-events: none; /* Prevent unintended interaction */
+      user-select: none; /* Заборона виділення */
+      -webkit-user-select: none; 
+      -ms-user-select: none; 
+      -moz-user-select: none;
+      pointer-events: none; /* Вимикає всі події миші */
+      -webkit-user-drag: none; /* Заборона перетягування у Safari */
     }
+
     .carousel-item.active {
       transform: scale(1.9);
       opacity: 1;
     }
-    .carousel, 
-.carousel-item, 
-.carousel-item img {
-  user-select: none;  /* Вимикає вибір тексту та елементів */
-  -webkit-user-select: none; /* Для Safari */
-  -ms-user-select: none; /* Для Internet Explorer */
-  -moz-user-select: none; /* Для Firefox */
-  pointer-events: none; /* Вимикає взаємодію з елементами */
-}
   </style>
 </head>
 <body>
@@ -83,13 +84,13 @@
       const scrollSpeed = 1.5;
       let lastActiveItem = null;
 
-      // Clone items for infinite loop
+      // Клонування елементів для безкінечної прокрутки
       originalItems.forEach(item => {
         const clone = item.cloneNode(true);
         carousel.appendChild(clone);
       });
 
-      // Calculate total width
+      // Визначення загальної ширини
       let totalWidth = originalItems.reduce((sum, item) => sum + item.offsetWidth, 0);
 
       function startScrolling() {
@@ -130,14 +131,14 @@
         }
       }
 
-      // Pause animation when touching an image and resume when leaving
+      // Вимикання анімації при торканні та поновлення після відпускання
       document.querySelectorAll(".carousel-item img").forEach(img => {
         img.addEventListener("touchstart", (e) => {
           if (requestId) {
             cancelAnimationFrame(requestId);
             requestId = null;
           }
-          e.preventDefault(); // Prevents unintended scrolling behavior
+          e.preventDefault(); // Запобігає випадковому скролінгу
         });
 
         img.addEventListener("touchend", () => {
@@ -147,7 +148,18 @@
         });
       });
 
-      // Start animation
+      // Вимикає контекстне меню (ПКМ)
+      document.addEventListener("contextmenu", function (event) {
+        event.preventDefault();
+      });
+
+      // Забороняє перетягування зображень
+      document.querySelectorAll(".carousel-item img").forEach(img => {
+        img.setAttribute("draggable", "false"); // Вимикає HTML-перетягування
+        img.onmousedown = () => false; // Вимикає клік та утримання
+      });
+
+      // Запускаємо анімацію
       startScrolling();
     });
   </script>
