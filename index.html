@@ -85,8 +85,7 @@
       let requestId;
       let xOffset = 0;
       const scrollSpeed = 1.5;
-      let lastActiveItem = null;
-      let isPaused = false; // Додаємо змінну для відстеження паузи
+      let isPaused = false; // Контролює паузу
 
       function startScrolling() {
         if (!isPaused) {
@@ -101,54 +100,27 @@
             xOffset = 0;
           }
           carousel.style.transform = `translateX(${-xOffset}px)`;
-          highlightCenterItem();
           requestId = requestAnimationFrame(step);
         }
       }
 
-      function highlightCenterItem() {
-        const containerCenter = carousel.parentElement.clientWidth / 2;
-        let allItems = Array.from(carousel.children);
-        let closestDistance = Infinity;
-        let closestItem = null;
-        let offsetSoFar = 0;
-
-        for (let item of allItems) {
-          const itemCenter = offsetSoFar + item.offsetWidth / 2;
-          const distance = Math.abs(containerCenter - (itemCenter - xOffset));
-          if (distance < closestDistance) {
-            closestDistance = distance;
-            closestItem = item;
-          }
-          offsetSoFar += item.offsetWidth;
-        }
-
-        if (closestItem && closestItem !== lastActiveItem) {
-          allItems.forEach(item => item.classList.remove('active'));
-          closestItem.classList.add('active');
-          lastActiveItem = closestItem;
-        }
-      }
-
-      // **Пауза при торканні (запам'ятовує стан анімації)**
+      // **Зупинка каруселі при торканні**
       carousel.addEventListener("touchstart", (e) => {
+        isPaused = true; // Ставимо карусель на паузу
         if (requestId) {
           cancelAnimationFrame(requestId);
           requestId = null;
         }
-        isPaused = true; // Ставимо карусель на паузу
-        e.stopPropagation();
+        e.preventDefault(); // Запобігає небажаній прокрутці
       });
 
-      // **Продовження руху після відпускання**
+      // **Продовження каруселі після відпускання**
       carousel.addEventListener("touchend", () => {
         isPaused = false; // Знімаємо паузу
-        if (!requestId) {
-          startScrolling();
-        }
+        startScrolling();
       });
 
-      // Запуск анімації
+      // **Запуск анімації**
       startScrolling();
     });
   </script>
