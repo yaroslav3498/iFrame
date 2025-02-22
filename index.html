@@ -87,6 +87,11 @@
       let isPaused = false;
       let lastActiveItem = null;
 
+      function cloneItems() {
+        const clonedItems = originalItems.map(item => item.cloneNode(true));
+        clonedItems.forEach(clone => carousel.appendChild(clone));
+      }
+
       function step() {
         if (!isPaused) {
           xOffset += scrollSpeed;
@@ -136,11 +141,18 @@
         }
       }
 
+      // **Запобігання блимання галереї**
+      function initializeCarousel() {
+        cloneItems();
+        carousel.style.visibility = "visible";
+        startScrolling();
+      }
+
       // **Зупинка при натисканні на мобільному (iPhone + Android)**
       carouselContainer.addEventListener("touchstart", (e) => {
         isPaused = true;
         stopScrolling();
-        e.preventDefault(); // Запобігає прокрутці сторінки
+        e.preventDefault();
       }, { passive: false });
 
       // **Продовження після відпускання**
@@ -166,12 +178,12 @@
 
       // **Забороняє перетягування зображень**
       document.querySelectorAll(".carousel-item img").forEach(img => {
-        img.setAttribute("draggable", "false"); // Вимикає HTML-перетягування
-        img.onmousedown = () => false; // Вимикає виділення при кліку
+        img.setAttribute("draggable", "false");
+        img.onmousedown = () => false;
       });
 
-      // **Запуск анімації**
-      startScrolling();
+      // **Ініціалізація каруселі**
+      initializeCarousel();
     });
   </script>
 </body>
