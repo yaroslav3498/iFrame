@@ -45,6 +45,15 @@
       transform: scale(1.9);
       opacity: 1;
     }
+    .carousel, 
+.carousel-item, 
+.carousel-item img {
+  user-select: none;  /* Вимикає вибір тексту та елементів */
+  -webkit-user-select: none; /* Для Safari */
+  -ms-user-select: none; /* Для Internet Explorer */
+  -moz-user-select: none; /* Для Firefox */
+  pointer-events: none; /* Вимикає взаємодію з елементами */
+}
   </style>
 </head>
 <body>
