@@ -13,10 +13,6 @@
       margin: 0;
       padding: 0;
       -webkit-touch-callout: none; /* Вимикає контекстне меню на iOS */
-      user-select: none; /* Заборона виділення */
-      -webkit-user-select: none;
-      -ms-user-select: none;
-      -moz-user-select: none;
     }
 
     .carousel-container {
@@ -88,18 +84,10 @@
       const scrollSpeed = 1.5;
       let lastActiveItem = null;
 
-      // Функція для заборони виділення, копіювання та перетягування елементів
-      function disableSelectionAndDrag(element) {
-        element.setAttribute("draggable", "false");
-        element.onmousedown = () => false;
-        element.addEventListener("contextmenu", (e) => e.preventDefault());
-      }
-
       // Клонування елементів для безкінечної прокрутки
       originalItems.forEach(item => {
         const clone = item.cloneNode(true);
         carousel.appendChild(clone);
-        disableSelectionAndDrag(clone.querySelector("img"));
       });
 
       // Визначення загальної ширини
@@ -143,14 +131,6 @@
         }
       }
 
-      // Вимикає контекстне меню (ПКМ) і забороняє перетягування
-      document.addEventListener("contextmenu", (event) => event.preventDefault());
-
-      // Забороняє виділення та копіювання у всіх зображеннях, включаючи клоновані
-      document.querySelectorAll(".carousel-item img").forEach(img => {
-        disableSelectionAndDrag(img);
-      });
-
       // Вимикання анімації при торканні та поновлення після відпускання
       document.querySelectorAll(".carousel-item img").forEach(img => {
         img.addEventListener("touchstart", (e) => {
@@ -158,7 +138,7 @@
             cancelAnimationFrame(requestId);
             requestId = null;
           }
-          e.preventDefault();
+          e.preventDefault(); // Запобігає випадковому скролінгу
         });
 
         img.addEventListener("touchend", () => {
@@ -166,6 +146,17 @@
             requestId = requestAnimationFrame(step);
           }
         });
+      });
+
+      // Вимикає контекстне меню (ПКМ)
+      document.addEventListener("contextmenu", function (event) {
+        event.preventDefault();
+      });
+
+      // Забороняє перетягування зображень
+      document.querySelectorAll(".carousel-item img").forEach(img => {
+        img.setAttribute("draggable", "false"); // Вимикає HTML-перетягування
+        img.onmousedown = () => false; // Вимикає клік та утримання
       });
 
       // Запускаємо анімацію
