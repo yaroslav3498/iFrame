@@ -85,7 +85,13 @@
       let requestId;
       let xOffset = 0;
       const scrollSpeed = 1.5;
-      let isPaused = false;
+      let isPaused = false; // Контролює паузу
+
+      function startScrolling() {
+        if (!isPaused) {
+          requestId = requestAnimationFrame(step);
+        }
+      }
 
       function step() {
         if (!isPaused) {
@@ -98,36 +104,23 @@
         }
       }
 
-      function startScrolling() {
-        if (!requestId) {
-          requestId = requestAnimationFrame(step);
-        }
-      }
-
-      function stopScrolling() {
+      // **Зупинка каруселі при торканні**
+      carousel.addEventListener("touchstart", (e) => {
+        isPaused = true; // Ставимо карусель на паузу
         if (requestId) {
           cancelAnimationFrame(requestId);
           requestId = null;
         }
-      }
-
-      // **Зупинка при дотику**
-      carousel.addEventListener("touchstart", (e) => {
-        isPaused = true;
-        stopScrolling();
-        e.preventDefault(); // Запобігає небажаній прокрутці сторінки
+        e.preventDefault(); // Запобігає небажаній прокрутці
       });
 
-      // **Продовження після відпускання**
+      // **Продовження каруселі після відпускання**
       carousel.addEventListener("touchend", () => {
-        isPaused = false;
+        isPaused = false; // Знімаємо паузу
         startScrolling();
       });
 
-      // **Продовження при русі миші (як альтернатива для десктопів)**
-      carousel.addEventListener("mouseenter", stopScrolling);
-      carousel.addEventListener("mouseleave", startScrolling);
-
+      // **Запуск анімації**
       startScrolling();
     });
   </script>
