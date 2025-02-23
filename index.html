@@ -25,13 +25,13 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 374px; /* 324px + відступ */
-      transition: height 0.4s ease;
+      height: 374px;
+      transition: height 0.6s ease-out;
     }
 
     .carousel {
       display: flex;
-      gap: 0px; /* Прибрано відступи */
+      gap: 0px;
       white-space: nowrap;
       position: relative;
       will-change: transform;
@@ -47,7 +47,9 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      transition: transform 0.4s ease, opacity 0.4s ease, width 0.4s ease, height 0.4s ease;
+      transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+      position: relative;
+      z-index: 1;
     }
 
     .carousel-item img {
@@ -57,7 +59,7 @@
       -webkit-user-drag: none;
       user-select: none;
       pointer-events: auto;
-      transition: width 0.4s ease, height 0.4s ease;
+      transition: transform 0.6s ease-out;
     }
 
     .carousel-item p {
@@ -72,14 +74,10 @@
       display: none;
     }
 
+    /* Анімація активного елемента */
     .carousel-item.active {
-      width: 260px;
-      height: 324px;
-    }
-
-    .carousel-item.active img {
-      width: 260px;
-      height: 324px;
+      transform: scale(1.92);
+      z-index: 2;
     }
 
     .carousel-item.active p {
@@ -91,7 +89,6 @@
 
   <div class="carousel-container" id="carouselContainer">
     <div class="carousel" id="carousel">
-      <!-- ВСІ 11 ЕЛЕМЕНТІВ -->
       <div class="carousel-item"><img src="https://raw.githubusercontent.com/yaroslav3498/iFrame/refs/heads/main/1.jpg" alt="Img1"><p>Обкладинка BAZAR 2022 №1</p></div>
       <div class="carousel-item"><img src="https://raw.githubusercontent.com/yaroslav3498/iFrame/refs/heads/main/2.jpg" alt="Img2"><p>Обкладинка BAZAR 2022 №2</p></div>
       <div class="carousel-item"><img src="https://raw.githubusercontent.com/yaroslav3498/iFrame/refs/heads/main/3.jpg" alt="Img3"><p>Обкладинка BAZAR 2022 №3</p></div>
@@ -112,7 +109,7 @@
       const carouselContainer = document.getElementById("carouselContainer");
       let requestId;
       let xOffset = 0;
-      const scrollSpeed = 1.5;
+      const scrollSpeed = 0.6;
       let lastActiveItem = null;
 
       function step() {
@@ -151,11 +148,12 @@
           closestItem.classList.add('active');
           lastActiveItem = closestItem;
 
-          // Виправлення центрування активного елемента
-          xOffset += (closestItem.offsetWidth - 135) / 2;
-
-          // Оновлення висоти контейнера під активний елемент
-          carouselContainer.style.height = "374px"; // 324px + запас зверху/знизу
+          // 🔥 Усунення зміщення каруселі:
+          // - Тепер `xOffset` не змінюється при виборі активного елемента
+          // - Активний елемент залишається на місці, поки збільшується
+          
+          // Оновлення висоти контейнера
+          carouselContainer.style.height = "374px";
         }
       }
 
