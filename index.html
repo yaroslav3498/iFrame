@@ -31,7 +31,7 @@
 
     .carousel {
       display: flex;
-      gap: 10px;
+      gap: 0px; /* Прибрано відступи */
       white-space: nowrap;
       position: relative;
       will-change: transform;
@@ -121,7 +121,7 @@
         const firstItem = carousel.firstElementChild;
         if (firstItem.getBoundingClientRect().right <= 0) {
           carousel.appendChild(firstItem);
-          xOffset -= firstItem.offsetWidth + 10;
+          xOffset -= firstItem.offsetWidth;
         }
 
         carousel.style.transform = `translateX(${-xOffset}px)`;
@@ -150,6 +150,9 @@
           allItems.forEach(item => item.classList.remove('active'));
           closestItem.classList.add('active');
           lastActiveItem = closestItem;
+
+          // Виправлення центрування активного елемента
+          xOffset += (closestItem.offsetWidth - 135) / 2;
 
           // Оновлення висоти контейнера під активний елемент
           carouselContainer.style.height = "374px"; // 324px + запас зверху/знизу
